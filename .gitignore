@@ -1,0 +1,25 @@
+# Specific Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+venv_*/
+.env
+.venv
+
+# Fisiere cu chei secrete (FOARTE IMPORTANT!)
+firebase_key.json
+secrets.h
+
+# Specific Arduino
+*.elf
+*.hex
+*.bin
+*.out
+
+# Diverse
+.DS_Store
+.vscode/

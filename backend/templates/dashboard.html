@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - SmartGrow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #40916c;
+            --light-green: #95d5b2;
+            --bg-light: #f8faf9;
+            --card-shadow: 0 4px 15px rgba(45, 106, 79, 0.1);
+            --border-radius: 16px;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            visibility: hidden; /* Hidden until auth check completes */
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Status Cards */
+        .status-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+        }
+
+        .status-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(45, 106, 79, 0.15);
+        }
+
+        .status-card .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-card .card-icon.temp {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+
+        .status-card .card-icon.humidity {
+            background: linear-gradient(135deg, #4dabf7 0%, #339af0 100%);
+            color: white;
+        }
+
+        .status-card .card-icon.soil {
+            background: linear-gradient(135deg, #69db7c 0%, #51cf66 100%);
+            color: white;
+        }
+
+        .status-card .card-icon.pump {
+            background: linear-gradient(135deg, #9775fa 0%, #845ef7 100%);
+            color: white;
+        }
+
+        .status-card .card-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-card .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 0.25rem;
+        }
+
+        .status-card .card-value small {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-green);
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        /* Control Toggle */
+        .pump-toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .pump-toggle {
+            position: relative;
+            width: 80px;
+            height: 40px;
+        }
+
+        .pump-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .pump-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ced4da;
+            transition: 0.4s;
+            border-radius: 40px;
+        }
+
+        .pump-slider:before {
+            position: absolute;
+            content: "";
+            height: 32px;
+            width: 32px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .pump-toggle input:checked + .pump-slider {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+        }
+
+        .pump-toggle input:checked + .pump-slider:before {
+            transform: translateX(40px);
+        }
+
+        .pump-status-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            min-width: 60px;
+        }
+
+        .pump-status-label.on {
+            color: var(--primary-green);
+        }
+
+        .pump-icon {
+            font-size: 3rem;
+            color: #ced4da;
+            transition: color 0.3s ease;
+        }
+
+        .pump-icon.active {
+            color: var(--primary-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Alerts Table */
+        .alerts-table {
+            margin: 0;
+        }
+
+        .alerts-table th {
+            border-top: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            padding: 0.75rem 1rem;
+            background-color: #f8f9fa;
+        }
+
+        .alerts-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .alert-badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .alert-badge.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .alert-badge.danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-badge.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Floating Chat Widget */
+        .chat-widget-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(45, 106, 79, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 1050;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-widget-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 360px;
+            height: 480px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .chat-window.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: var(--bg-light);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .chat-message.bot {
+            background-color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            color: #1a1a2e;
+        }
+
+        .chat-message.user {
+            background-color: var(--light-green);
+            color: #000;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+            padding-left: 15px;
+        }
+
+        .chat-input-area input:focus {
+            box-shadow: none;
+            border-color: var(--primary-green);
+        }
+
+        .chat-input-area button {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-green);
+            border: none;
+            color: white;
+        }
+        
+        .chat-input-area button:hover {
+            background-color: var(--secondary-green);
+        }
+
+        /* Connection Status */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .connection-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ced4da;
+        }
+
+        .connection-dot.connected {
+            background-color: #51cf66;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+
+        /* Loading State */
+        .loading {
+            color: #ced4da;
+        }
+
+        /* Last Updated */
+        .last-updated {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>SmartGrow</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Panou de Control</span>
+            </a>
+            <a href="/analytics" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Statistici</span>
+            </a>
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Setări</span>
+            </a>
+            <a href="/alerts" class="nav-link">
+                <i class="fas fa-bell"></i>
+                <span>Alerte</span>
+            </a>
+            <a href="/history" class="nav-link">
+                <i class="fas fa-history"></i>
+                <span>Istoric</span>
+            </a>
+            <a href="/about" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>Despre</span>
+            </a>
+            <a href="#" onclick="logout()" class="nav-link mt-5" style="color: #ff6b6b;"><i class="fas fa-sign-out-alt"></i> <span>Deconectare</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">Panou de Control</h1>
+                <p class="page-subtitle">Monitorizează și controlează mediul serei tale</p>
+            </div>
+            <div class="connection-status">
+                <span class="connection-dot" id="connectionDot"></span>
+                <span id="connectionText">Se conectează...</span>
+            </div>
+        </div>
+
+        <!-- Live Status Section -->
+        <section class="mb-4">
+            <h5 class="text-muted mb-3">
+                <i class="fas fa-signal me-2"></i>Status în Timp Real
+                <small class="last-updated ms-3" id="lastUpdated">Ultima actualizare: --</small>
+            </h5>
+            <div class="row g-4">
+                <!-- Temperature Card -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="status-card">
+                        <div class="card-icon temp">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="card-label">Temperatură</div>
+                        <div class="card-value">
+                            <span id="tempValue" class="loading">--</span>
+                            <small>°C</small>
+                        </div>
+                    </div>
+                </div>
+                <!-- Air Humidity Card -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="status-card">
+                        <div class="card-icon humidity">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="card-label">Umiditate Aer</div>
+                        <div class="card-value">
+                            <span id="humidityValue" class="loading">--</span>
+                            <small>%</small>
+                        </div>
+                    </div>
+                </div>
+                <!-- Soil Moisture Card -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="status-card">
+                        <div class="card-icon soil">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                        <div class="card-label">Umiditate Sol</div>
+                        <div class="card-value">
+                            <span id="soilValue" class="loading">--</span>
+                            <small>%</small>
+                        </div>
+                    </div>
+                </div>
+                <!-- Pump Status Card -->
+                <div class="col-xl-3 col-lg-6 col-md-6">
+                    <div class="status-card">
+                        <div class="card-icon pump">
+                            <i class="fas fa-faucet"></i>
+                        </div>
+                        <div class="card-label">Stare Pompă</div>
+                        <div class="card-value">
+                            <span id="pumpValue" class="loading">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="row">
+            <!-- Analytics Section -->
+            <div class="col-lg-8">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-chart-area"></i>
+                            Prezentare Generală Statistici
+                        </h6>
+                    </div>
+                    <div class="section-body">
+                        <div class="chart-container">
+                            <canvas id="historyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Control Section -->
+            <div class="col-lg-4">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            Control Manual
+                        </h6>
+                    </div>
+                    <div class="section-body">
+                        <div class="pump-toggle-container">
+                            <i class="fas fa-faucet pump-icon" id="pumpIcon"></i>
+                            <div class="text-center">
+                                <label class="pump-toggle">
+                                    <input type="checkbox" id="pumpToggle" onchange="togglePump()">
+                                    <span class="pump-slider"></span>
+                                </label>
+                                <div class="pump-status-label mt-2" id="pumpStatusLabel">OFF</div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Comutați pentru a controla manual pompa de apă
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-bolt"></i>
+                            Statistici Rapide
+                        </h6>
+                    </div>
+                    <div class="section-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Udări Astăzi</span>
+                            <strong id="wateringCount">0 ori</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted">Temp Medie</span>
+                            <strong id="avgTemp">-- °C</strong>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Timp Funcționare Sistem</span>
+                            <strong id="uptime">--</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jurnal Decizii AI Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h6 class="section-title">
+                    <i class="fas fa-robot text-primary"></i>
+                    Jurnal Decizii AI
+                </h6>
+            </div>
+            <div class="section-body p-0">
+                <div class="table-responsive" id="ai-table-container" style="max-height: 300px; overflow-y: auto; background-color: #fff; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th><i class="far fa-clock me-1"></i> Timp</th>
+                                <th><i class="fas fa-satellite-dish me-1"></i> Date Senzori</th>
+                                <th><i class="fas fa-power-off me-1"></i> Decizie</th>
+                                <th><i class="fas fa-info-circle me-1"></i> Motiv</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ai-logs-list">
+                            <tr>
+                                <td class="text-muted small">12:05:00</td>
+                                <td><i class="fas fa-thermometer-half me-1"></i>--°C &nbsp;|&nbsp; <i class="fas fa-tint me-1"></i>18%</td>
+                                <td><span class="badge bg-success">PORNIRE</span></td>
+                                <td class="text-muted">Sol uscat</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted small">12:20:00</td>
+                                <td><i class="fas fa-thermometer-half me-1"></i>--°C &nbsp;|&nbsp; <i class="fas fa-tint me-1"></i>45%</td>
+                                <td><span class="badge bg-secondary">OPRIRE</span></td>
+                                <td class="text-muted">Sol optim</td>
+                            </tr>
+                            <tr id="ai-loading-row">
+                                <td colspan="4" class="text-center text-muted small py-3">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Așteptare date noi de la rețea neuronală...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Alerts Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h6 class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Alerte Recente
+                </h6>
+                <button class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/alerts'">
+                    <i class="fas fa-eye me-1"></i>Vezi Toate
+                </button>
+            </div>
+            <div class="section-body p-0">
+                <div class="table-responsive">
+                    <table class="table alerts-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tip</th>
+                                <th>Mesaj</th>
+                                <th>Timp</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody">
+                            <tr>
+                                <td><span class="alert-badge warning"><i class="fas fa-thermometer-full me-1"></i>Temperatură</span></td>
+                                <td>Temperatura a depășit pragul de 35°C</td>
+                                <td>acum 2 ore</td>
+                                <td><span class="badge bg-secondary">Rezolvat</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="alert-badge danger"><i class="fas fa-tint-slash me-1"></i>Sol</span></td>
+                                <td>Umiditate sol extrem de redusă (15%)</td>
+                                <td>acum 5 ore</td>
+                                <td><span class="badge bg-secondary">Rezolvat</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="alert-badge info"><i class="fas fa-faucet me-1"></i>Pompă</span></td>
+                                <td>Ciclu automat de udare completat</td>
+                                <td>acum 6 ore</td>
+                                <td><span class="badge bg-success">Activ</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-muted py-4 mt-4">
+            <small>Sistem de Monitorizare SmartGrow &copy; 2026 | Proiect de Licență</small>
+        </footer>
+    </main>
+
+    <!-- Floating Chat Widget -->
+    <div class="chat-widget-toggle" onclick="toggleChatWindow()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <!-- AI Chat Window -->
+    <div class="chat-window" id="ai-chat-window">
+        <div class="chat-header">
+            <span><i class="fas fa-robot me-2"></i> Asistent Plantă AI</span>
+            <i class="fas fa-times" style="cursor: pointer;" onclick="toggleChatWindow()"></i>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="chat-message bot">
+                Bună! Sunt asistentul tău virtual AI. Cu ce te pot ajuta astăzi în legătură cu sera ta?
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" class="form-control form-control-sm" id="chat-input" placeholder="Scrie un mesaj aici..." onkeypress="handleChatEnter(event)">
+            <button onclick="handleChatSend()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js Time Adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase configuration - PASTE YOUR KEYS HERE
+        const firebaseConfig = {
+  apiKey: "AIzaSyBClqsUEx1IoYFRb19auW-gxDT3OQKk828",
+  authDomain: "proiectlicenta-da795.firebaseapp.com",
+  databaseURL: "https://proiectlicenta-da795-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "proiectlicenta-da795",
+  storageBucket: "proiectlicenta-da795.firebasestorage.app",
+  messagingSenderId: "341619394858",
+  appId: "1:341619394858:web:cddd410087d6bfbc3b7653",
+  measurementId: "G-F7ZNKKVHSB"
+};
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Check authentication state - redirect if not logged in
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                // No user is signed in, redirect to login
+                window.location.href = '/';
+            } else {
+                // User is signed in, show the dashboard
+                document.body.style.visibility = 'visible';
+                console.log('User authenticated:', user.email);
+            }
+        });
+
+        function logout() { firebase.auth().signOut().then(() => { window.location.href = '/'; }); }
+    </script>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+        const REFRESH_INTERVAL = 3000; // 3 seconds
+
+        // DOM Elements
+        const tempValueEl = document.getElementById('tempValue');
+        const humidityValueEl = document.getElementById('humidityValue');
+        const soilValueEl = document.getElementById('soilValue');
+        const pumpValueEl = document.getElementById('pumpValue');
+        const pumpToggleEl = document.getElementById('pumpToggle');
+        const pumpIconEl = document.getElementById('pumpIcon');
+        const pumpStatusLabelEl = document.getElementById('pumpStatusLabel');
+        const connectionDotEl = document.getElementById('connectionDot');
+        const connectionTextEl = document.getElementById('connectionText');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+
+        // State
+        let isConnected = false;
+        let fullHistoryData = [];
+        let currentChartTimeframe = '24h';
+
+        /**
+         * Fetch current status from backend API
+         */
+        async function fetchCurrentStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/current-status`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                updateDashboard(data);
+                
+                // Do not randomly set connection to true just because our backend responded.
+                // The Firebase real-time listener will mark ESP32 as connected when new values arrive.
+
+            } catch (error) {
+                console.error('Error fetching statistics:', error);
+                setConnectionStatus(false); // Only declare disconnected if backend entirely fails
+            }
+        }
+
+        /**
+         * Update dashboard with fetched data
+         */
+        function updateDashboard(data) {
+            // Update temperature (supports both English and Romanian field names)
+            if (data.temperature !== undefined || data.temperatura !== undefined) {
+                const temp = data.temperature ?? data.temperatura;
+                tempValueEl.textContent = parseFloat(temp).toFixed(1);
+                tempValueEl.classList.remove('loading');
+            }
+
+            // Update air humidity
+            if (data.humidity !== undefined || data.umiditate_aer !== undefined) {
+                const humidity = data.humidity ?? data.umiditate_aer;
+                humidityValueEl.textContent = parseFloat(humidity).toFixed(1);
+                humidityValueEl.classList.remove('loading');
+            }
+
+            // Update soil moisture
+            if (data.soil_moisture !== undefined || data.umiditate_sol !== undefined) {
+                const soil = data.soil_moisture ?? data.umiditate_sol;
+                soilValueEl.textContent = parseFloat(soil).toFixed(1);
+                soilValueEl.classList.remove('loading');
+            }
+
+            // Update pump status
+            const pumpStatus = data.pump_status ?? data.pompa_pornita;
+            if (pumpStatus !== undefined) {
+                const pumpOn = pumpStatus === true || pumpStatus === 'ON' || pumpStatus === 1;
+                pumpValueEl.textContent = pumpOn ? 'ON' : 'OFF';
+                pumpValueEl.classList.remove('loading');
+                pumpValueEl.style.color = pumpOn ? '#2d6a4f' : '#6c757d';
+                
+                // Sync toggle button
+                pumpToggleEl.checked = pumpOn;
+                updatePumpUI(pumpOn);
+            }
+
+            // Update last updated time
+            const now = new Date();
+            lastUpdatedEl.textContent = `Last updated: ${now.toLocaleTimeString()}`;
+
+            // Check for alerts
+            generateAlerts(data);
+
+            // Update Quick Stats with backend API data
+            updateQuickStats(data);
+        }
+
+        /**
+         * Dynamically generate alerts based on the latest data or fetched alerts
+         */
+        // Punem un ascultător direct pe baza de date pentru widget-ul din Dashboard
+firebase.database().ref('/planta_mea/alerte').on('value', (snapshot) => {
+    const tbody = document.getElementById('alertsTableBody');
+    if (!tbody) return;
+    
+    const rawData = snapshot.val();
+    
+    if (!rawData) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-muted py-3"><i class="fas fa-check-circle text-success me-2"></i>All systems normal</td></tr>`;
+        return;
+    }
+
+    // Convertim in array, le luam pe ultimele 3 de sus
+    const alertsArray = Object.keys(rawData).map(key => rawData[key]).reverse().slice(0, 3);
+    let htmlString = '';
+
+    alertsArray.forEach(alert => {
+        const nivel = alert.nivel;
+        if (!nivel) return;
+        
+        let message = alert.tip || "Avertizare";
+        if (alert.valoare !== undefined && alert.valoare !== null) {
+            message += ` (${alert.valoare})`;
+        }
+
+        let badgeClass = 'bg-info text-dark';
+        let iconClass = 'fas fa-info-circle text-info';
+        let alertBadgeClass = 'info';
+
+        if (nivel === 'Critical') {
+            badgeClass = 'bg-danger text-white';
+            iconClass = 'fas fa-exclamation-circle text-danger';
+            alertBadgeClass = 'danger';
+        } else if (nivel === 'Warning') {
+            badgeClass = 'bg-warning text-dark';
+            iconClass = 'fas fa-exclamation-triangle text-warning';
+            alertBadgeClass = 'warning';
+        }
+
+        htmlString += `
+            <tr>
+                <td><span class="alert-badge ${alertBadgeClass}"><i class="${iconClass} me-1"></i>${nivel}</span></td>
+                <td>${message}</td>
+                <td><span class="badge ${badgeClass}">Activ</span></td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = htmlString || `<tr><td colspan="4" class="text-center text-muted py-3"><i class="fas fa-check-circle text-success me-2"></i>All systems normal</td></tr>`;
+});
+
+        /**
+         * Set connection status indicator
+         */
+        function setConnectionStatus(connected) {
+            isConnected = connected;
+            if (connected) {
+                connectionDotEl.classList.add('connected');
+                connectionTextEl.textContent = 'Connected';
+            } else {
+                connectionDotEl.classList.remove('connected');
+                connectionTextEl.textContent = 'Disconnected';
+            }
+        }
+
+        // Add real-time listener for ESP32 connection/live status
+        firebase.database().ref('/planta_mea/curent').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                // If we get an update here, the ESP32 is connected
+                setConnectionStatus(true);
+                
+                // Check last update time to mark as disconnected if it gets stale (2 minutes per user request for Uptime)
+                const now = Date.now();
+                
+                // If data.timestamp exists (e.g. from ESP32 or Firebase functions), verify it
+                let isOnline = true;
+                if (data.timestamp) {
+                    // Check if timestamp is within last 2 minutes (120,000 ms)
+                    // (Assuming data.timestamp is in epoch ms as standard)
+                    const diff = now - data.timestamp;
+                    if (diff > 120000) {
+                        isOnline = false;
+                        setConnectionStatus(false);
+                    }
+                }
+                
+                // Set Uptime text (Aratam ora la care s-a conectat sau a primit ultima data)
+                const uptimeEl = document.getElementById('uptime');
+                if (uptimeEl) {
+                    if (isOnline) {
+                        const date = data.timestamp ? new Date(data.timestamp) : new Date();
+                        uptimeEl.textContent = `Online (Ora: ${date.toLocaleTimeString('ro-RO', {hour:'2-digit', minute:'2-digit'})})`;
+                    } else {
+                        uptimeEl.textContent = 'Offline';
+                    }
+                    uptimeEl.className = isOnline ? 'text-success fw-bold' : 'text-danger fw-bold';
+                }
+                
+                // Update live values directly from Firebase for instant feedback
+                if (data.temperatura !== undefined) {
+                    tempValueEl.textContent = parseFloat(data.temperatura).toFixed(1);
+                    tempValueEl.classList.remove('loading');
+                }
+                
+                if (data.umiditate_aer !== undefined) {
+                    humidityValueEl.textContent = parseFloat(data.umiditate_aer).toFixed(1);
+                    humidityValueEl.classList.remove('loading');
+                }
+                
+                if (data.umiditate_sol !== undefined) {
+                    soilValueEl.textContent = parseFloat(data.umiditate_sol).toFixed(1);
+                    soilValueEl.classList.remove('loading');
+                }
+                
+                if (data.pompa_pornita !== undefined) {
+                    const pumpOn = data.pompa_pornita === true || data.pompa_pornita === 1 || data.pompa_pornita === '1';
+                    pumpValueEl.textContent = pumpOn ? 'ON' : 'OFF';
+                    pumpValueEl.classList.remove('loading');
+                    pumpValueEl.style.color = pumpOn ? '#2d6a4f' : '#6c757d';
+                }
+                
+                // Update quick stats fetching strictly from /planta_mea/istoric
+                updateQuickStats();
+            } else {
+                setConnectionStatus(false);
+                const uptimeEl = document.getElementById('uptime');
+                if (uptimeEl) { uptimeEl.textContent = 'Offline'; uptimeEl.className = 'text-danger fw-bold'; }
+            }
+        });
+
+        /**
+         * Toggle pump manually
+         */
+        /**
+         * Toggle pump manually
+         */
+        async function togglePump() {
+            const isOn = pumpToggleEl.checked;
+            updatePumpUI(isOn);
+
+            try {
+                // Aici am corectat link-ul si formatul datelor pentru Python
+                const response = await fetch(`${API_BASE_URL}/api/toggle-pump`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ state: isOn })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                console.log('Pump status updated:', isOn ? 'ON' : 'OFF');
+
+            } catch (error) {
+                console.error('Error toggling pump:', error);
+                // Revert toggle on error
+                pumpToggleEl.checked = !isOn;
+                updatePumpUI(!isOn);
+                alert('Eroare de conexiune cu serverul Python. Asigura-te ca e pornit!');
+            }
+        }
+
+        /**
+         * Update pump UI elements
+         */
+        function updatePumpUI(isOn) {
+            if (isOn) {
+                pumpIconEl.classList.add('active');
+                pumpStatusLabelEl.textContent = 'ON';
+                pumpStatusLabelEl.classList.add('on');
+            } else {
+                pumpIconEl.classList.remove('active');
+                pumpStatusLabelEl.textContent = 'OFF';
+                pumpStatusLabelEl.classList.remove('on');
+            }
+        }
+
+        /**
+         * Listen to AI Logs from Firebase Realtime Database
+         */
+        function listenToAILogs() {
+            const aiLogsList = document.getElementById('ai-logs-list');
+            const aiTableContainer = document.getElementById('ai-table-container');
+            
+            let isFirstLoad = true;
+
+            const dbRef = firebase.database().ref('/planta_mea/ai_logs').limitToLast(15);
+            
+            dbRef.on('child_added', (snapshot) => {
+                if (isFirstLoad) {
+                    aiLogsList.innerHTML = '';
+                    isFirstLoad = false;
+                }
+
+                const log = snapshot.val();
+                if (!log) return;
+
+                const tr = document.createElement('tr');
+
+                // Determine badge class for decision
+                let badgeClass = 'bg-secondary';
+                if (log.decizie === 'PORNIRE') badgeClass = 'bg-success';
+                else if (log.decizie === 'ALERTĂ') badgeClass = 'bg-danger';
+
+                tr.innerHTML = `
+                    <td class="text-muted small">${log.timestamp || 'Unknown'}</td>
+                    <td>
+                        <i class="fas fa-thermometer-half text-muted me-1"></i>${parseFloat(log.temp).toFixed(1)}°C &nbsp;|&nbsp;
+                        <i class="fas fa-tint text-primary me-1"></i>${parseFloat(log.soil).toFixed(1)}%
+                    </td>
+                    <td><span class="badge ${badgeClass}">${log.decizie}</span></td>
+                    <td class="text-muted">${log.motiv}</td>
+                `;
+
+                // Prepend to top
+                aiLogsList.prepend(tr);
+
+                // Keep only last 15 elements to avoid cluttering
+                while (aiLogsList.children.length > 15) {
+                    aiLogsList.removeChild(aiLogsList.lastChild);
+                }
+
+                // Scroll container to top
+                if (aiTableContainer) {
+                    aiTableContainer.scrollTop = 0;
+                }
+            });
+        }
+
+        /**
+         * AI Chat Widget Handlers
+         */
+        function toggleChatWindow() {
+            const chatWindow = document.getElementById('ai-chat-window');
+            chatWindow.classList.toggle('active');
+        }
+
+        function handleChatEnter(event) {
+            if (event.key === 'Enter') {
+                handleChatSend();
+            }
+        }
+
+        async function handleChatSend() {
+            const inputField = document.getElementById('chat-input');
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            // Add user message to UI
+            const messagesContainer = document.getElementById('chat-messages');
+            const userMsgHTML = `<div class="chat-message user">${escapeHtml(message)}</div>`;
+            messagesContainer.innerHTML += userMsgHTML;
+            inputField.value = '';
+
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Call real API
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const botMsgHTML = `<div class="chat-message bot">${escapeHtml(data.reply)}</div>`;
+                    messagesContainer.innerHTML += botMsgHTML;
+                } else {
+                    const botMsgHTML = `<div class="chat-message bot">Eroare de conexiune cu serverul AI.</div>`;
+                    messagesContainer.innerHTML += botMsgHTML;
+                }
+            } catch (error) {
+                console.error('Error fetching AI chat:', error);
+                const botMsgHTML = `<div class="chat-message bot">Eroare de conexiune cu serverul AI.</div>`;
+                messagesContainer.innerHTML += botMsgHTML;
+            }
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        /**
+         * Toggle sidebar for mobile
+         */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Chart instance reference
+        let historyChart = null;
+
+        /**
+         * Load and render the history chart
+         */
+        async function loadHistoryChart() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/history`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    console.log('No history data available');
+                    return;
+                }
+
+                fullHistoryData = data;
+                renderChartBasedOnTimeframe();
+
+                console.log('History chart loaded successfully');
+
+            } catch (error) {
+                console.error('Error loading history chart:', error);
+            }
+        }
+
+        function updateQuickStats() {
+            // Fetch directly from Firebase /planta_mea/istoric pentru temperatura
+            firebase.database().ref('/planta_mea/istoric').once('value').then((snapshot) => {
+                const data = snapshot.val();
+                const avgTempEl = document.getElementById('avgTemp');
+                
+                if (!data) {
+                    if (avgTempEl) avgTempEl.textContent = 'N/A';
+                    return;
+                }
+
+                const historyArray = Object.values(data);
+                if (historyArray.length === 0) {
+                    if (avgTempEl) avgTempEl.textContent = 'N/A';
+                    return;
+                }
+
+                let sumTemp = 0;
+                let validTemps = 0;
+
+                historyArray.forEach(entry => {
+                    if (entry && typeof entry === 'object' && entry.temperatura !== undefined) {
+                        const tempVal = parseFloat(entry.temperatura);
+                        if (!isNaN(tempVal)) {
+                            sumTemp += tempVal;
+                            validTemps++;
+                        }
+                    }
+                });
+
+                if (validTemps > 0) {
+                    const avg = (sumTemp / validTemps).toFixed(1);
+                    if (avgTempEl) avgTempEl.textContent = `${avg} °C`;
+                } else {
+                    if (avgTempEl) avgTempEl.textContent = 'N/A';
+                }
+            }).catch(error => {
+                console.error('Error fetching quick stats from istoric:', error);
+                const avgTempEl = document.getElementById('avgTemp');
+                if (avgTempEl) avgTempEl.textContent = 'N/A';
+            });
+
+            // Funcție pentru a extrage timestamp-ul din cheia generată de Firebase (Push ID)
+            const getTimestampFromFirebasePushId = (pushId) => {
+                const PUSH_CHARS = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+                let timestamp = 0;
+                for (let i = 0; i < 8; i++) {
+                    timestamp = timestamp * 64 + PUSH_CHARS.indexOf(pushId.charAt(i));
+                }
+                return timestamp;
+            };
+
+            // Numaram Udările de ASTĂZI din '/planta_mea/alerte' unde tipul e 'Pompa a fost pornita.'
+            firebase.database().ref('/planta_mea/alerte').once('value').then((snapshot) => {
+                const data = snapshot.val();
+                const wateringCountEl = document.getElementById('wateringCount');
+                if (!data) {
+                    if (wateringCountEl) wateringCountEl.textContent = '0 ori';
+                    return;
+                }
+                
+                let count = 0;
+                const now = new Date();
+                const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+                Object.keys(data).forEach(key => {
+                    const alerta = data[key];
+                    // Cautam un string care contine "pornita"
+                    if (alerta && alerta.tip && alerta.tip.toLowerCase().includes('pornita')) {
+                        // Extragem data înregistrării direct din cheia unică generată de Firebase
+                        const alertTime = getTimestampFromFirebasePushId(key);
+                        if (alertTime >= startOfToday) {
+                            count++;
+                        }
+                    }
+                });
+
+                if (wateringCountEl) {
+                    wateringCountEl.textContent = `${count} ori`;
+                }
+            }).catch(error => {
+                const wateringCountEl = document.getElementById('wateringCount');
+                if (wateringCountEl) wateringCountEl.textContent = 'N/A';
+            });
+        }
+
+        function renderChartBasedOnTimeframe() {
+            if (!fullHistoryData || fullHistoryData.length === 0) return;
+
+            const now = new Date();
+            // Extragem datele doar pentru ultimele 12 ore pentru a arata mai bine în grafic
+            const twelveHoursAgo = new Date(now.getTime() - (12 * 60 * 60 * 1000));
+
+            // Extract data into format expected by chart time scale { x: date, y: value }
+            const temperatures = [];
+            const humidities = [];
+
+            fullHistoryData.forEach((entry, index) => {
+                const rawTime = entry.timestamp || entry.time;
+                const time = rawTime ? new Date(rawTime) : new Date(now.getTime() - ((fullHistoryData.length - index) * 60 * 60 * 1000));
+                
+                const temp = entry.temperature ?? entry.temperatura ?? null;
+                const hum = entry.humidity ?? entry.umiditate_aer ?? null;
+
+                if (temp !== null) temperatures.push({ x: time, y: temp });
+                if (hum !== null) humidities.push({ x: time, y: hum });
+            });
+
+            // Get the canvas context
+            const ctx = document.getElementById('historyChart').getContext('2d');
+
+            // Destroy existing chart if it exists
+            if (historyChart) {
+                historyChart.destroy();
+            }
+
+            // Create the chart
+                historyChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                label: 'Temperature (°C)',
+                                data: temperatures,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 3,
+                                pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                                pointHoverRadius: 5
+                            },
+                            {
+                                label: 'Air Humidity (%)',
+                                data: humidities,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 3,
+                                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                                pointHoverRadius: 5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20,
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    family: "'Inter', sans-serif",
+                                    size: 14
+                                },
+                                bodyFont: {
+                                    family: "'Inter', sans-serif",
+                                    size: 13
+                                },
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                min: twelveHoursAgo.getTime(),
+                                max: now.getTime(),
+                                time: {
+                                    unit: 'hour',
+                                    displayFormats: {
+                                        hour: 'HH:mm'
+                                    },
+                                    tooltipFormat: 'MMM d, HH:mm'
+                                },
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 11
+                                    },
+                                    maxRotation: 45,
+                                    minRotation: 0
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+        }
+
+        /**
+         * Initialize the dashboard
+         */
+        function init() {
+            // Initial fetch
+            fetchCurrentStatus();
+
+            // Load history chart
+            loadHistoryChart();
+
+            // Start listening to AI logs
+            listenToAILogs();
+
+            // Set up periodic refresh
+            setInterval(fetchCurrentStatus, REFRESH_INTERVAL);
+
+            console.log('Smart Greenhouse Dashboard initialized');
+            console.log(`API endpoint: ${API_BASE_URL}/api/current-status`);
+            console.log(`Refresh interval: ${REFRESH_INTERVAL}ms`);
+        }
+
+        // Start the dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+
+

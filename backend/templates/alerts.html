@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerte - SmartGrow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #40916c;
+            --light-green: #95d5b2;
+            --bg-light: #f8faf9;
+            --card-shadow: 0 4px 15px rgba(45, 106, 79, 0.1);
+            --border-radius: 16px;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            visibility: hidden; /* Hidden until auth check completes */
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-green);
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        /* Alert Cards */
+        .alert-card {
+            border: none;
+            border-left: 5px solid transparent;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-card.danger {
+            border-left-color: #dc3545;
+            background-color: #fff5f6;
+        }
+
+        .alert-card.warning {
+            border-left-color: #ffc107;
+            background-color: #fffcf2;
+        }
+
+        .alert-card.info {
+            border-left-color: #0dcaf0;
+            background-color: #f0fbfc;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+
+        .danger .alert-icon {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .warning .alert-icon {
+            color: #ffc107;
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .info .alert-icon {
+            color: #0dcaf0;
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #adb5bd;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>SmartGrow</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Panou de Control</span>
+            </a>
+            <a href="/analytics" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Statistici</span>
+            </a>
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Setări</span>
+            </a>
+            <a href="/alerts" class="nav-link active">
+                <i class="fas fa-bell"></i>
+                <span>Alerte</span>
+            </a>
+            <a href="/history" class="nav-link">
+                <i class="fas fa-history"></i>
+                <span>Istoric</span>
+            </a>
+            <a href="/about" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>Despre</span>
+            </a>
+            <a href="#" onclick="logout()" class="nav-link mt-5" style="color: #ff6b6b;"><i class="fas fa-sign-out-alt"></i> <span>Deconectare</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">Alerte Sistem</h1>
+                <p class="page-subtitle">Gestionează și analizează evenimentele critice ale serei</p>
+            </div>
+            <div>
+                <!-- Am transformat butonul Refresh, desi acum e totul in timp real si nu mai e absolut necesar, l-am lasat functional -->
+                <button class="btn btn-outline-secondary" onclick="window.location.reload();">
+                    <i class="fas fa-sync-alt me-1"></i> Reîmprospătare
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-4">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-secondary active" id="btn-all">Toate Alertele</button>
+                <button type="button" class="btn btn-outline-danger" id="btn-critical">Critice</button>
+                <button type="button" class="btn btn-outline-warning" id="btn-warning">Avertizări</button>
+                <button type="button" class="btn btn-outline-info" id="btn-info">Info</button>
+            </div>
+        </div>
+
+        <!-- Alerts Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h6 class="section-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Alerte Recente
+                </h6>
+            </div>
+            <div class="section-body" id="alertsContainer">
+                
+                <!-- Dynamic alerts will be injected here -->
+                <p class="text-muted text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Se încarcă alertele...</p>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-muted py-4 mt-4">
+            <small>Sistem de Monitorizare SmartGrow &copy; 2026 | Proiect de Licență</small>
+        </footer>
+    </main>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <!-- Adaugat fisierul lipsa pentru Realtime Database: -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBClqsUEx1IoYFRb19auW-gxDT3OQKk828",
+            authDomain: "proiectlicenta-da795.firebaseapp.com",
+            databaseURL: "https://proiectlicenta-da795-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "proiectlicenta-da795",
+            storageBucket: "proiectlicenta-da795.firebasestorage.app",
+            messagingSenderId: "341619394858",
+            appId: "1:341619394858:web:cddd410087d6bfbc3b7653",
+            measurementId: "G-F7ZNKKVHSB"
+        };
+
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        // Check authentication state - redirect if not logged in
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = '/';
+            } else {
+                document.body.style.visibility = 'visible';
+            }
+        });
+
+        function logout() { firebase.auth().signOut().then(() => { window.location.href = '/'; }); }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // --- ALERTS LOGIC (REALTIME FIREBASE) ---
+        
+        let currentFilter = 'all';
+
+        // Functia care filtreaza cardurile (All, Critical, Warning, Info)
+        function filterAlerts(category) {
+            currentFilter = category;
+            const cards = document.querySelectorAll('.alert-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Ascultam Firebase-ul in timp real
+        firebase.database().ref('/planta_mea/alerte').on('value', (snapshot) => {
+            const container = document.getElementById('alertsContainer');
+            const rawData = snapshot.val();
+            
+            container.innerHTML = ''; // Curatam textul de "Se incarca..."
+            
+            if (!rawData) {
+                container.innerHTML = '<p class="text-muted text-center py-4"><i class="fas fa-check-circle text-success me-2"></i>Nicio alertă de afișat. Toate sistemele funcționează normal.</p>';
+                return;
+            }
+
+            // Transformam dictionarul in Lista si o intoarcem invers (cele mai noi alerte primele)
+            const alertsArray = Object.keys(rawData).map(key => rawData[key]).reverse();
+            let htmlContent = '';
+
+            alertsArray.forEach((entry) => {
+                let nivel = entry.nivel;
+                if (!nivel) return; // Ignoram inregistrarile vechi care nu au nivel
+
+                let message = entry.tip || "Avertizare sistem";
+                let title = "Alertă " + nivel;
+
+                // Daca avem o valoare a senzorului, o atasam
+                if (entry.valoare !== undefined && entry.valoare !== null) {
+                    message += ` (Senzor: ${entry.valoare})`;
+                }
+
+                let badgeClass = 'bg-secondary';
+                let iconClass = 'fas fa-info-circle text-info';
+                let cardClass = 'info';
+                let dataCategory = 'info';
+
+                // Mapare Culori in functie de Nivel
+                if (nivel === 'Critical') {
+                    badgeClass = 'bg-danger';
+                    iconClass = 'fas fa-exclamation-circle text-danger';
+                    cardClass = 'danger';
+                    dataCategory = 'critical';
+                } else if (nivel === 'Warning') {
+                    badgeClass = 'bg-warning text-dark';
+                    iconClass = 'fas fa-exclamation-triangle text-warning';
+                    cardClass = 'warning';
+                    dataCategory = 'warning';
+                } else if (nivel === 'Info') {
+                    badgeClass = 'bg-info text-dark';
+                    iconClass = 'fas fa-info-circle text-info';
+                    cardClass = 'info';
+                    dataCategory = 'info';
+                }
+
+                // Generam HTML-ul pentru fiecare alerta
+                htmlContent += `
+                    <div class="card alert-card ${cardClass} p-3" data-category="${dataCategory}">
+                        <div class="d-flex align-items-center">
+                            <div class="alert-icon me-3">
+                                <i class="${iconClass}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="alert-title">${title}</h6>
+                                <p class="alert-message">${message}</p>
+                            </div>
+                            <div class="text-end ms-3">
+                                <span class="badge ${badgeClass}">${nivel}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Punem tot HTML-ul generat pe ecran
+            if(htmlContent === '') {
+                 container.innerHTML = '<p class="text-muted text-center py-4"><i class="fas fa-check-circle text-success me-2"></i>Nu s-au găsit alerte formatate.</p>';
+            } else {
+                 container.innerHTML = htmlContent;
+                 filterAlerts(currentFilter); // Re-aplicam filtrul curent
+            }
+        });
+
+        // Event Listeners pentru Butoanele de Filtru
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnAll = document.getElementById('btn-all');
+            const btnCritical = document.getElementById('btn-critical');
+            const btnWarning = document.getElementById('btn-warning');
+            const btnInfo = document.getElementById('btn-info');
+            const btns = [btnAll, btnCritical, btnWarning, btnInfo];
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Scoatem clasa 'active' de pe toate butoanele
+                    btns.forEach(b => b.classList.remove('active'));
+                    // Punem clasa 'active' pe butonul apasat
+                    e.target.classList.add('active');
+
+                    // Filtram
+                    if (e.target.id === 'btn-all') filterAlerts('all');
+                    if (e.target.id === 'btn-critical') filterAlerts('critical');
+                    if (e.target.id === 'btn-warning') filterAlerts('warning');
+                    if (e.target.id === 'btn-info') filterAlerts('info');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

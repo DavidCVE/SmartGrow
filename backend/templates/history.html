@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Istoric - SmartGrow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #40916c;
+            --light-green: #95d5b2;
+            --bg-light: #f8faf9;
+            --card-shadow: 0 4px 15px rgba(45, 106, 79, 0.1);
+            --border-radius: 16px;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            visibility: hidden; /* Hidden until auth check completes */
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-green);
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        /* Table Styles */
+        .history-table {
+            margin: 0;
+        }
+
+        .history-table th {
+            border-top: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+
+        .history-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #e9ecef;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>SmartGrow</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Panou de Control</span>
+            </a>
+            <a href="/analytics" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Statistici</span>
+            </a>
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Setări</span>
+            </a>
+            <a href="/alerts" class="nav-link">
+                <i class="fas fa-bell"></i>
+                <span>Alerte</span>
+            </a>
+            <a href="/history" class="nav-link active">
+                <i class="fas fa-history"></i>
+                <span>Istoric</span>
+            </a>
+            <a href="/about" class="nav-link">
+                <i class="fas fa-info-circle"></i>
+                <span>Despre</span>
+            </a>
+            <a href="#" onclick="logout()" class="nav-link mt-5" style="color: #ff6b6b;"><i class="fas fa-sign-out-alt"></i> <span>Deconectare</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="page-title">Istoric Senzori</h1>
+                <p class="page-subtitle">Înregistrări istorice ale mediului din sera ta</p>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary" onclick="fetchHistory()">
+                    <i class="fas fa-sync-alt me-1"></i> Actualizează
+                </button>
+            </div>
+        </div>
+
+        <!-- History Table Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h6 class="section-title">
+                    <i class="fas fa-list"></i>
+                    Citiri Senzori
+                </h6>
+            </div>
+            <div class="section-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover history-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Timp</th>
+                                <th><i class="fas fa-thermometer-half me-1" style="color: #ff6b6b;"></i> Temperatură</th>
+                                <th><i class="fas fa-tint me-1" style="color: #4dabf7;"></i> Umiditate Aer</th>
+                                <th><i class="fas fa-seedling me-1" style="color: #51cf66;"></i> Umiditate Sol</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-4 text-muted">Se încarcă datele...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-muted py-4 mt-4">
+            <small>Sistem de Monitorizare SmartGrow &copy; 2026 | Proiect de Licență</small>
+        </footer>
+    </main>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration - Copying from dashboard.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyBClqsUEx1IoYFRb19auW-gxDT3OQKk828",
+            authDomain: "proiectlicenta-da795.firebaseapp.com",
+            databaseURL: "https://proiectlicenta-da795-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "proiectlicenta-da795",
+            storageBucket: "proiectlicenta-da795.firebasestorage.app",
+            messagingSenderId: "341619394858",
+            appId: "1:341619394858:web:cddd410087d6bfbc3b7653",
+            measurementId: "G-F7ZNKKVHSB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Check authentication state - redirect if not logged in
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                // No user is signed in, redirect to login
+                window.location.href = '/';
+            } else {
+                // User is signed in, show the page
+                document.body.style.visibility = 'visible';
+                console.log('User authenticated:', user.email);
+                
+                // Fetch history data now that we know user is authenticated
+                fetchHistory();
+            }
+        });
+
+        function logout() { firebase.auth().signOut().then(() => { window.location.href = '/'; }); }
+
+        /**
+         * Toggle sidebar for mobile
+         */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Configuration
+        const API_BASE_URL = 'http://127.0.0.1:5000';
+
+        /**
+         * Fetch history from backend API and populate the table
+         */
+        async function fetchHistory() {
+            const tableBody = document.getElementById('historyTableBody');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/history`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                tableBody.innerHTML = ''; // clear loading state before appending
+                
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Nu există date istorice disponibile.</td></tr>`;
+                    return;
+                }
+
+                // Populate table with data
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // #
+                    const idCell = document.createElement('td');
+                    idCell.textContent = index + 1;
+                    row.appendChild(idCell);
+                    
+                    // Time
+                    const timestampVal = entry.timestamp || entry.time;
+                    const timeCell = document.createElement('td');
+                    if (timestampVal) {
+                        const date = new Date(timestampVal);
+                        timeCell.textContent = date.toLocaleString('en-US', {
+                            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        });
+                        row.appendChild(timeCell);
+                    } else {
+                        timeCell.textContent = 'N/A';
+                        timeCell.classList.add('text-muted');
+                        row.appendChild(timeCell);
+                    }
+                    
+                    // Temperature
+                    const temp = entry.temperature ?? entry.temperatura;
+                    const tempCell = document.createElement('td');
+                    if (temp !== undefined && temp !== null) {
+                        tempCell.innerHTML = `<strong>${parseFloat(temp).toFixed(1)}</strong> <small class="text-muted">°C</small>`;
+                    } else {
+                        tempCell.textContent = '--';
+                    }
+                    row.appendChild(tempCell);
+                    
+                    // Humidity
+                    const hum = entry.humidity ?? entry.umiditate_aer;
+                    const humCell = document.createElement('td');
+                    if (hum !== undefined && hum !== null) {
+                        humCell.innerHTML = `<strong>${parseFloat(hum).toFixed(1)}</strong> <small class="text-muted">%</small>`;
+                    } else {
+                        humCell.textContent = '--';
+                    }
+                    row.appendChild(humCell);
+                    
+                    // Soil Moisture
+                    const soil = entry.soil_moisture ?? entry.umiditate_sol;
+                    const soilCell = document.createElement('td');
+                    if (soil !== undefined && soil !== null) {
+                        soilCell.innerHTML = `<strong>${parseFloat(soil).toFixed(1)}</strong> <small class="text-muted">%</small>`;
+                    } else {
+                        soilCell.textContent = '--';
+                    }
+                    row.appendChild(soilCell);
+                    
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error fetching history:', error);
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Eroare la încărcarea datelor istorice. Vă rugăm să verificați conexiunea.</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
+
+

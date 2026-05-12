@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGrow Admin - Despre Proiect</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2d6a4f;
+            --secondary-green: #40916c;
+            --light-green: #95d5b2;
+            --bg-light: #f8faf9;
+            --card-shadow: 0 4px 15px rgba(45, 106, 79, 0.1);
+            --border-radius: 16px;
+        }
+
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            visibility: hidden; /* Hidden until auth check completes */
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+            min-height: 100vh;
+            width: 280px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 2rem 1.5rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-brand i {
+            font-size: 2rem;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 120px);
+        }
+
+        .sidebar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .sidebar-nav .nav-link:hover,
+        .sidebar-nav .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+
+        .sidebar-nav .nav-link i {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem 2.5rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            border: none;
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+
+        .section-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-green);
+        }
+
+        .section-body {
+            padding: 2rem 1.5rem;
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        /* Academic Text Styling */
+        .academic-text p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .thesis-info-banner {
+            background: linear-gradient(135deg, rgba(45, 106, 79, 0.05) 0%, rgba(64, 145, 108, 0.1) 100%);
+            border-left: 4px solid var(--primary-green);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .tech-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tech-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f1f3f5;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .tech-list li:last-child {
+            border-bottom: none;
+        }
+
+        .tech-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--primary-green);
+            flex-shrink: 0;
+        }
+
+        .tech-details h6 {
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .tech-details p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 240px;
+            }
+            .main-content {
+                margin-left: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-leaf"></i>
+            <span>SmartGrow</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Panou de control</span>
+            </a>
+            <a href="/analytics" class="nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Statistici</span>
+            </a>
+            <a href="/settings" class="nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Setări</span>
+            </a>
+            <a href="/alerts" class="nav-link">
+                <i class="fas fa-bell"></i>
+                <span>Alerte</span>
+            </a>
+            <a href="/history" class="nav-link">
+                <i class="fas fa-history"></i>
+                <span>Istoric</span>
+            </a>
+            <a href="/about" class="nav-link active">
+                <i class="fas fa-info-circle"></i>
+                <span>Despre Proiect</span>
+            </a>
+            <a href="#" onclick="logout()" class="nav-link mt-5" style="color: #ff6b6b;"><i class="fas fa-sign-out-alt"></i> <span>Deconectare</span></a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Despre Proiect</h1>
+            <p class="page-subtitle">Documentația academică pentru proiectul de diplomă SmartGrow</p>
+        </div>
+
+        <!-- Academic Banner -->
+        <div class="thesis-info-banner">
+            <h4 class="mb-3 text-dark">Sistem Automat de Monitorizare Inteligentă a Serei</h4>
+            <div class="d-flex flex-column gap-2 text-muted">
+                <div><strong>Autor Proiect de Diplomă:</strong> Cioveie David-Stefan</div>
+                <div><strong>An Universitar:</strong> 2026</div>
+                <div><strong>Instituție:</strong> Facultatea de Automatică și Calculatoare</div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Hardware Architecture -->
+            <div class="col-xl-6 col-lg-12">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-microchip"></i>
+                            Arhitectură Hardware
+                        </h6>
+                    </div>
+                    <div class="section-body academic-text">
+                        <p>Stratul hardware IoT este responsabil pentru colectarea parametrilor de mediu și controlul fizic al sistemului de irigare. Nodurile comunică prin Wi-Fi direct cu baza de date centralizată în timp real.</p>
+                        
+                        <ul class="tech-list mt-4">
+                            <li>
+                                <div class="tech-icon"><i class="fas fa-microchip"></i></div>
+                                <div class="tech-details">
+                                    <h6>Microcontroler ESP32</h6>
+                                    <p>Nodul IoT central. Se conectează la rețeaua locală Wi-Fi și acționează ca o punte de calcul între senzorii fizici și infrastructura cloud Firebase.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon"><i class="fas fa-thermometer-half"></i></div>
+                                <div class="tech-details">
+                                    <h6>Senzor DHT22</h6>
+                                    <p>Furnizează citiri digitale de înaltă precizie atât pentru temperatura ambientală, cât și pentru umiditatea aerului din interiorul serei.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon"><i class="fas fa-seedling"></i></div>
+                                <div class="tech-details">
+                                    <h6>Senzor Capacitiv pentru Umiditatea Solului</h6>
+                                    <p>Măsoară conținutul volumetric de apă din sol. Designul său capacitiv previne problemele de coroziune întâlnite frecvent la senzorii rezistivi alternativi.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon"><i class="fas fa-plug"></i></div>
+                                <div class="tech-details">
+                                    <h6>Modul Releu 5V</h6>
+                                    <p>Acționează ca un comutator electronic, separând în siguranță logica de joasă tensiune a ESP32 de cerințele de curent mai mari ale pompei de apă.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon"><i class="fas fa-faucet"></i></div>
+                                <div class="tech-details">
+                                    <h6>Pompă de Apă Submersibilă</h6>
+                                    <p>Execută comenzile de irigație automate, gestionate de modelul de Inteligență Artificială (Machine Learning), sau manuale, pentru a menține condițiile ideale de umiditate a solului pentru culturi.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Software Architecture -->
+            <div class="col-xl-6 col-lg-12">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h6 class="section-title">
+                            <i class="fas fa-code"></i>
+                            Arhitectură Software
+                        </h6>
+                    </div>
+                    <div class="section-body academic-text">
+                        <p>Stratul software utilizează o arhitectură cloud decuplată pentru a asigura o disponibilitate ridicată, autentificare sigură a utilizatorilor și panouri de administrare responsive, care folosesc un model de Machine Learning pentru îngrijirea inteligentă a plantelor.</p>
+                        
+                        <ul class="tech-list mt-4">
+                            <li>
+                                <div class="tech-icon" style="color: #4B8BBE;"><i class="fab fa-python"></i></div>
+                                <div class="tech-details">
+                                    <h6>Backend Python Flask</h6>
+                                    <p>Un framework de aplicații web WSGI ușor și robust, care servește drept backend REST API. Acesta gestionează rutele securizate, randează șabloane dinamice, asigură procesarea datelor și integrează modelul AI.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon" style="color: #FFA611;"><i class="fas fa-database"></i></div>
+                                <div class="tech-details">
+                                    <h6>Firebase Realtime Database</h6>
+                                    <p>O bază de date NoSQL găzduită în cloud. Datele sunt sincronizate pe toți clienții în timp real și rămân disponibile atunci când aplicația este offline.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon" style="color: #F6820D;"><i class="fas fa-shield-alt"></i></div>
+                                <div class="tech-details">
+                                    <h6>Firebase Authentication</h6>
+                                    <p>Oferă servicii backend robuste și biblioteci UI gata de utilizare pentru autentificarea utilizatorilor, asigurându-se că panourile senzorilor și controalele sunt sigure.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="tech-icon" style="color: #712cf9;"><i class="fab fa-bootstrap"></i></div>
+                                <div class="tech-details">
+                                    <h6>Bootstrap 5 & JavaScript</h6>
+                                    <p>Frontend-ul modern este construit folosind Bootstrap 5 pentru un sistem de grid responsive, orientat spre mobile. JavaScript simplu (Vanilla JS) este combinat cu Fetch API pentru actualizări asincrone pe partea de client.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-muted py-4 mt-4">
+            <small>Sistem de Monitorizare SmartGrow &copy; 2026 | Proiect de Diplomă</small>
+        </footer>
+    </main>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+    <script>
+        // Firebase configuration - Copying from dashboard.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyBClqsUEx1IoYFRb19auW-gxDT3OQKk828",
+            authDomain: "proiectlicenta-da795.firebaseapp.com",
+            databaseURL: "https://proiectlicenta-da795-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "proiectlicenta-da795",
+            storageBucket: "proiectlicenta-da795.firebasestorage.app",
+            messagingSenderId: "341619394858",
+            appId: "1:341619394858:web:cddd410087d6bfbc3b7653",
+            measurementId: "G-F7ZNKKVHSB"
+        };
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Check authentication state - redirect if not logged in
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) {
+                // No user is signed in, redirect to login
+                window.location.href = '/';
+            } else {
+                // User is signed in, show the page
+                document.body.style.visibility = 'visible';
+                console.log('User authenticated:', user.email);
+            }
+        });
+
+        function logout() { firebase.auth().signOut().then(() => { window.location.href = '/'; }); }
+
+        /**
+         * Toggle sidebar for mobile
+         */
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
