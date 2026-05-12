@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
-# Pune cheia ta reală aici
-genai.configure(api_key="AIzaSyBhtUZtqw2SB15VwTo2jnh3SNjtqmMN_tQ")
+# Pune cheia ta reală aici (NU o urca pe GitHub)
+genai.configure(api_key="PUNE_CHEIA_GEMINI_AICI")
 
 print("🔍 Caut modelele disponibile pentru această cheie API...")
 
